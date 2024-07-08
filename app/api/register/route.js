@@ -17,7 +17,10 @@ export async function POST(req) {
     }).save();
 
     // console.log("user created => ", user);
-    return NextResponse.json("User register successfully", { status: 201 });
+    return NextResponse.json(
+      { succes: "User register successfully" },
+      { status: 201 }
+    );
   } catch (err) {
     console.log(err);
     return NextResponse.json({ err: err.message }, { status: 500 });
