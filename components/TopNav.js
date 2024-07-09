@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 
 export default function TopNav() {
   const { data, status, loading } = useSession();
-  // console.log(data, status);
+  console.log(data, status);
 
   return (
     <nav className="nav shadow p-2 justify-content-between mb-3">
@@ -12,9 +12,9 @@ export default function TopNav() {
         🛒 Next ecom
       </Link>
       {status === "authenticated" ? (
-        <>
+        <div className="d-flex justify-content-end">
           <Link href="/dashboard/user" className="nav-link ">
-            {data?.user?.name}
+            {data?.user?.name} ({data?.user?.role})
           </Link>
           <a
             className="nav-link pointer"
@@ -22,7 +22,7 @@ export default function TopNav() {
           >
             Logout
           </a>
-        </>
+        </div>
       ) : status === "loading" ? (
         <a className="nav-link text-danger">Loading</a>
       ) : (
