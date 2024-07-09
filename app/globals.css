@@ -1,35 +1,3 @@
-/* Override the default body background and text color */
-body,
-html {
-  background-color: black !important;
-  color: white !important;
-}
-
-/* Override background and text color for Bootstrap's classes */
-.bg-light {
-  background-color: black !important;
-}
-
-.text-dark,
-.navbar-light .navbar-brand,
-.navbar-light .navbar-nav .nav-link {
-  color: white !important;
-}
-
-/* Custom styles for buttons */
-.btn-primary {
-  background-color: #1e90ff !important;
-  border-color: #1e90ff !important;
-}
-
-.btn-primary:hover {
-  background-color: #0d6efd !important;
-  border-color: #0d6efd !important;
-}
-
-/* Custom styles for form controls */
-.form-control {
-  background-color: #333 !important;
-  color: white !important;
-  border-color: #555 !important;
+.pointer {
+  cursor: pointer;
 }

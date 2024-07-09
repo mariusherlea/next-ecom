@@ -5,8 +5,8 @@ import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("marius@marius.ro");
+  const [password, setPassword] = useState("marius");
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
