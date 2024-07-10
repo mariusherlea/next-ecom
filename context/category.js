@@ -1,16 +1,15 @@
 "use client";
-
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useContext } from "react";
 import toast from "react-hot-toast";
 
 export const CategoryContext = createContext();
 
 export const CategoryProvider = ({ children }) => {
-  //to create a category
+  // to create a category
   const [name, setName] = useState("");
-  //for fetching all categories
+  // for fetching all categories
   const [categories, setCategories] = useState([]);
-  //for update and delete a category
+  // for update and delete
   const [updatingCategory, setUpdatingCategory] = useState(null);
 
   const createCategory = async () => {
@@ -26,32 +25,51 @@ export const CategoryProvider = ({ children }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data.err);
+        // console.log("data.err", data);
+        toast.error(data);
       } else {
-        const data = await response.json();
+        toast.success("Category created");
         setName("");
         setCategories([data, ...categories]);
-        toast.success("Category created successfully");
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("An error occured. Try again");
+    } catch (err) {
+      console.log(err);
+      toast.error("An error occurred. Try again");
     }
   };
-  const fetchCategory = async () => {
+
+  const fetchCategories = async () => {
     try {
       const response = await fetch(`${process.env.API}/admin/category`);
       const data = await response.json();
+
       if (!response.ok) {
-        toast.error(data.err);
+        toast.error(data);
       } else {
         setCategories(data);
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("An error occured. Try again");
+    } catch (err) {
+      console.log(err);
+      toast.error("An error occurred. Try again");
     }
   };
+
+  const fetchCategoriesPublic = async () => {
+    try {
+      const response = await fetch(`${process.env.API}/categories`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data);
+      } else {
+        setCategories(data);
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("An error occurred. Try again");
+    }
+  };
+
   const updateCategory = async () => {
     try {
       const response = await fetch(
@@ -61,29 +79,30 @@ export const CategoryProvider = ({ children }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name }),
+          body: JSON.stringify(updatingCategory),
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data.err);
+        toast.error(data);
       } else {
-        toast.success("Category updated successfully");
+        toast.success("Category updated");
         setUpdatingCategory(null);
         setCategories(
-          categories.map((category) => {
-            category._id === updatingCategory._id ? data : category;
-          })
+          categories.map((category) =>
+            category._id === updatingCategory._id ? data : category
+          )
         );
         setUpdatingCategory(null);
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("An error occured. Try again");
+    } catch (err) {
+      console.log(err);
+      toast.error("An error occurred. Try again");
     }
   };
+
   const deleteCategory = async () => {
     try {
       const response = await fetch(
@@ -94,18 +113,19 @@ export const CategoryProvider = ({ children }) => {
       );
 
       const data = await response.json();
+
       if (!response.ok) {
-        toast.error(data.err);
+        toast.error(data);
       } else {
-        toast.success("Category deleted successfully");
+        toast.success("Category deleted");
         setCategories(
           categories.filter((category) => category._id !== updatingCategory._id)
         );
         setUpdatingCategory(null);
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("An error occured. Try again");
+    } catch (err) {
+      console.log(err);
+      toast.error("An error occurred. Try again");
     }
   };
 
@@ -119,7 +139,8 @@ export const CategoryProvider = ({ children }) => {
         updatingCategory,
         setUpdatingCategory,
         createCategory,
-        fetchCategory,
+        fetchCategories,
+        fetchCategoriesPublic,
         updateCategory,
         deleteCategory,
       }}
@@ -129,6 +150,4 @@ export const CategoryProvider = ({ children }) => {
   );
 };
 
-export const useCategory = () => {
-  return useContext(CategoryContext);
-};
+export const useCategory = () => useContext(CategoryContext);
