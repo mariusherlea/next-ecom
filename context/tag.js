@@ -20,23 +20,24 @@ export const TagProvider = ({ children }) => {
         },
         body: JSON.stringify({
           name,
-          parent: parentCategory,
+          parentCategory,
         }),
       });
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data);
+        toast.error(data.message || "Failed to create tag");
       } else {
         toast.success("Tag created successfully");
         setName("");
         setParentCategory("");
-        setTags({ data, ...tags });
+        setTags((prevTags) => [...prevTags, data]);
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+      console.error(error);
+      toast.error(error.message || "An error occurred while creating tag");
     }
   };
+
   const fetchTags = async () => {
     try {
       const response = await fetch(`${process.env.API}/admin/tag`, {
@@ -47,15 +48,16 @@ export const TagProvider = ({ children }) => {
       });
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data);
+        toast.error(data.message || "Failed to fetch tags");
       } else {
-        setTags({ data });
+        setTags(data);
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+      console.error(error);
+      toast.error(error.message || "An error occurred while fetching tags");
     }
   };
+
   const updateTag = async () => {
     try {
       const response = await fetch(
@@ -65,27 +67,26 @@ export const TagProvider = ({ children }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            updatingTag,
-          }),
+          body: JSON.stringify(updatingTag),
         }
       );
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data);
+        toast.error(data.message || "Failed to update tag");
       } else {
         toast.success("Tag updated successfully");
         setUpdatingTag(null);
         setParentCategory("");
         setTags((prevTags) =>
-          prevTags?.map((tag) => (tag.id === data._id ? data : tag))
+          prevTags.map((tag) => (tag._id === data._id ? data : tag))
         );
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+      console.error(error);
+      toast.error(error.message || "An error occurred while updating tag");
     }
   };
+
   const deleteTag = async () => {
     try {
       const response = await fetch(
@@ -100,18 +101,19 @@ export const TagProvider = ({ children }) => {
 
       const data = await response.json();
       if (!response.ok) {
-        toast.error(data);
+        toast.error(data.message || "Failed to delete tag");
       } else {
         toast.success("Tag deleted successfully");
         setUpdatingTag(null);
         setParentCategory("");
-        setTags((prevTags) => prevTags?.filter((tag) => tag.id !== data._id));
+        setTags((prevTags) => prevTags.filter((tag) => tag._id !== data._id));
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+      console.error(error);
+      toast.error(error.message || "An error occurred while deleting tag");
     }
   };
+
   return (
     <TagContext.Provider
       value={{
