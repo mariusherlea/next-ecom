@@ -114,8 +114,94 @@ export default function ProductCreate() {
             : setProduct({ ...product, stock: e.target.value })
         }
       />
+      <div className="form-group">
+        <select
+          name="category"
+          className="form-control p-2 mb-2"
+          onChange={(e) => {
+            const categoryId = e.target.value;
+            const categoryName =
+              e.target.options[e.target.selectedIndex].getAttribute("name");
+            const category = categoryId
+              ? {
+                  _id: categoryId,
+                  name: categoryName,
+                }
+              : null;
+            if (updatingProduct) {
+              setUpdatingProduct({
+                ...updatingProduct,
+                category,
+              });
+            } else {
+              setProduct({
+                ...product,
+                category,
+              });
+            }
+          }}
+          value={
+            updatingProduct
+              ? updatingProduct?.category?._id
+              : product?.category?._id
+          }
+        >
+          <option value="">Select Category</option>
+          {categories?.map((category) => (
+            <option value={category._id} name={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="d-flex flex-wrap justify-content-evenly align-items-center">
+        {tags
+          ?.filter(
+            (ft) =>
+              ft.parentCategory ===
+              (updatingProduct?.category?._id || product?.category?._id)
+          )
+          ?.map((tag) => (
+            <div className="form-check" key={tag?._id}>
+              <input
+                type="checkbox"
+                value={tag?._id}
+                onChange={(e) => {
+                  const tagId = e.target.value;
+                  const tagName = e.tag?.name;
+                  let selectedTags = updatingProduct
+                    ? [...(updatingProduct?.tags ?? [])]
+                    : [...(product?.tags ?? [])];
+
+                  if (e.target.checked) {
+                    selectedTags.push({
+                      _id: tagId,
+                      name: tagName,
+                    });
+                  } else {
+                    selectedTags = selectedTags.filter(
+                      (st) => st._id !== tagId
+                    );
+                  }
+                  if (updatingProduct) {
+                    setUpdatingProduct({
+                      ...updatingProduct,
+                      tags: selectedTags,
+                    });
+                  } else {
+                    setProduct({
+                      ...product,
+                      tags: selectedTags,
+                    });
+                  }
+                }}
+              />
+              <label>{tag?.name}</label>
+            </div>
+          ))}
+      </div>
       <pre>
-        {/* {JSON.stringify(product, null, 4)} */}
+        {JSON.stringify(product, null, 4)}
         {/* {JSON.stringify(tags, null, 4)} */}
       </pre>
     </div>
