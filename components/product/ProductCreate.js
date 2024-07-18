@@ -200,6 +200,21 @@ export default function ProductCreate() {
             </div>
           ))}
       </div>
+      <div className="form-group mb-3">
+        <label
+          className={`btn btn-primary col-12 ${uploading ? "disabled" : ""}`}
+        >
+          {uploading ? "Processing" : "Upload Images"}
+          <input
+            type="file"
+            multiple
+            hidden
+            accept="images/*"
+            onChange={uploadImages}
+            disabled={uploading}
+          />
+        </label>
+      </div>
       <pre>
         {JSON.stringify(product, null, 4)}
         {/* {JSON.stringify(tags, null, 4)} */}

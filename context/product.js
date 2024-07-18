@@ -1,8 +1,10 @@
 "use client";
 
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useContext } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Resizer from "react-image-file-resizer";
+import { set } from "mongoose";
 
 const ProductContext = createContext();
 
@@ -15,13 +17,95 @@ export const ProductProvider = ({ children }) => {
   const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
-  const uploadImages = (e) => {};
+  const uploadImages = (e) => {
+    const files = e.target.files;
+    let allUploadedFiles = updatingProduct
+      ? updatingProduct?.images || []
+      : product
+      ? product?.images || []
+      : [];
 
-  const deleteImage = (public_id) => {};
+    if (files) {
+      //check if there are more than 4 images
+      const totalImages = allUploadedFiles?.length + files?.length;
+      if (totalImages > 4) {
+        toast.error("You can only upload 4 images");
+        return;
+      }
+      setUploading(true);
+      const uploadPromises = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const promise = new Promise((resolve) => {
+          Resizer.imageFileResizer(
+            file,
+            1280,
+            1280,
+            "JPEG",
+            100,
+            0,
+            (uri) => {
+              fetch(`${process.env.api}/admin/upload/image`, {
+                method: "POST",
+                body: JSON.stringify({
+                  image: uri,
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  allUploadedFiles.unshift(data);
+                  resolve();
+                })
+                .catch((err) => {
+                  console.log("image upload error=> ", err);
+                  resolve();
+                });
+            },
+            "base64"
+          );
+        });
+        uploadPromises.push(promise);
+      }
+      Promise.all(uploadPromises)
+        .then(() => {
+          updatingProduct
+            ? setUpdatingProduct({
+                ...updatingProduct,
+                images: allUploadedFiles,
+              })
+            : setProduct({ ...product, images: allUploadedFiles });
+          setUploading(false);
+        })
+        .catch((err) => {
+          console.log("image upload error=> ", err);
+        });
+    }
+  };
+
+  const deleteImage = (public_id) => {
+    setUploading(true);
+    fetch(`${process.env.api}/admin/upload/image/`, {
+      method: "DELETE",
+      body: JSON.stringify({ public_id }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const updatedImages = updatingProduct?.images.filter(
+          (image) => image.public_id !== public_id
+        );
+        updatingProduct
+          ? setUpdatingProduct({ ...updatingProduct, images: updatedImages })
+          : setProduct({ ...product, images: updatedImages });
+        setUploading(false);
+      });
+  };
 
   const createProduct = async (data) => {
     try {
-      const response = await fetch(`{process.env.api}/admin/product`, {
+      const response = await fetch(`${process.env.api}/admin/product`, {
         method: "POST",
         body: JSON.stringify(product),
       });
@@ -41,7 +125,7 @@ export const ProductProvider = ({ children }) => {
   const fecthProducts = async (page = 1) => {
     try {
       const response = await fetch(
-        `{process.env.api}/admin/product?page=${page}`,
+        `${process.env.api}/admin/product?page=${page}`,
         {
           method: "GET",
         }
@@ -63,7 +147,7 @@ export const ProductProvider = ({ children }) => {
   const updateProduct = async () => {
     try {
       const response = await fetch(
-        `{process.env.api}/admin/product/${updatingProduct?._id}`,
+        `${process.env.api}/admin/product/${updatingProduct?._id}`,
         {
           method: "PUT",
           body: JSON.stringify(updatingProduct),
@@ -85,7 +169,7 @@ export const ProductProvider = ({ children }) => {
   const deleteProduct = async () => {
     try {
       const response = await fetch(
-        `{process.env.api}/admin/product/${updatingProduct?._id}`,
+        `${process.env.api}/admin/product/${updatingProduct?._id}`,
         {
           method: "DELETE",
         }
